@@ -1,6 +1,7 @@
 import os
 from keras import layers
 from keras import models
+from keras.applications import ResNet50
 from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 
@@ -12,27 +13,27 @@ validation_dir= os.path.join(base_dir, 'valid')
 test_dir= os.path.join(base_dir, 'test')
 
 #hyper params
-n_channel_1=16
-n_channel_2=32
-n_dense_1=32
-n_dense_2=16
-n_train_epoch=50
-n_classes= 3
-batch_size=16
+n_channel_1 = 16
+n_channel_2 = 32
+n_dense_1 = 32
+n_dense_2 = 16
+n_train_epoch = 50
+n_classes = 3
+batch_size = 16
 
-model= models.Sequential()
-model.add(layers.Conv2D(n_channel_1, (3,3), activation='relu', input_shape=(28,28,3)))
-model.add(layers.MaxPool2D(2,2))
-model.add(layers.Conv2D(n_channel_2, (3,3), activation='relu'))
-model.add(layers.MaxPooling2D((2,2)))
-model.add(layers.Dropout(0.25))
-model.add(layers.Flatten())
-model.add(layers.Dense(n_dense_1, activation='relu', name='dense_1'))
-model.add(layers.Dense(n_dense_2, activation='relu', name='dense_2'))
-model.add(layers.Dropout(0.5))
-model.add(layers.Dense(n_classes, activation='softmax', name='dense_3'))
-
+input = layers.Input(shape=(28, 28, 3))
+model = ResNet50(input_tensor=input, include_top=False, weights='imagenet', pooling='max')
+x = model.output
+x = layers.Dense(1024, name='fully', init='uniform')(x)
+x = layers.BatchNormalization()(x)
+x = layers.Activation('relu')(x)
+x = layers.Dense(512, init='uniform')(x)
+x = layers.BatchNormalization()(x)
+x = layers.Activation('relu')(x)
+x = layers.Dense(3, activation='softmax', name='softmax')(x)
+model = models.Model(model.input, x)
 model.summary()
+
 model.compile(optimizer='adam',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
