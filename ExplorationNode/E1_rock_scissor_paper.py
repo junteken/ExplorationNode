@@ -5,34 +5,45 @@ from keras.applications import ResNet50
 from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 
+    
+import tensorflow as tf
 
-os.environ['KMP_DUPLICATE_LIB_OK']= 'True' #OMP error solution for MacOS
+if tf.test.is_gpu_available(cuda_only=False, min_cuda_compute_capability=None):
+    print('gpu is available??')
+else:
+    print('gpu is available??')
+
+
+
 base_dir= os.getcwd()+'/rock_scissor_paper_data'
 train_dir= os.path.join(base_dir, 'train')
 validation_dir= os.path.join(base_dir, 'valid')
 test_dir= os.path.join(base_dir, 'test')
 
 #hyper params
-n_channel_1 = 16
-n_channel_2 = 32
-n_dense_1 = 32
-n_dense_2 = 16
 n_train_epoch = 50
 n_classes = 3
-batch_size = 16
+batch_size = 128
 
 input = layers.Input(shape=(28, 28, 3))
 model = ResNet50(input_tensor=input, include_top=False, weights='imagenet', pooling='max')
+
+for layer in model.layers[:-1]:
+    layer.trainable = False
+
 x = model.output
-x = layers.Dense(1024, name='fully', init='uniform')(x)
+x = layers.Dense(1024, name='fully')(x)
 x = layers.BatchNormalization()(x)
 x = layers.Activation('relu')(x)
-x = layers.Dense(512, init='uniform')(x)
+x = layers.Dense(512)(x)
 x = layers.BatchNormalization()(x)
 x = layers.Activation('relu')(x)
 x = layers.Dense(3, activation='softmax', name='softmax')(x)
 model = models.Model(model.input, x)
 model.summary()
+
+for i, layer in enumerate(model.layers):
+    print(i, layer.name, "-", layer.trainable)
 
 model.compile(optimizer='adam',
               loss='categorical_crossentropy',
@@ -62,10 +73,10 @@ def train(save_file):
 
     history= model.fit_generator(
         train_generator,
-        steps_per_epoch=train_generator.samples,
+        steps_per_epoch=train_generator.samples//batch_size,
         epochs=n_train_epoch,
         validation_data=validation_generator,
-        validation_steps=validation_generator.samples
+        validation_steps=validation_generator.samples//batch_size
     )
 
     acc= history.history['accuracy']
@@ -95,8 +106,8 @@ def train(save_file):
 train('rock_scissor_paper.h5')
 
 
-from tensorflow.python.keras.models import load_model
-#model = load_model('rock_scissor_paper.h5')
+# from tensorflow.python.keras.models import load_model
+# model = load_model('rock_scissor_paper.h5')
 
 
 test_datagen= ImageDataGenerator(rescale=1./255)
