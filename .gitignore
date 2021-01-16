@@ -3,3 +3,4 @@ environment.yml
 .idea/inspectionProfiles
 .idea
 ExplorationNode/E1_rock_scissor_paper/rock_scissor_paper_data
+ExplorationNode/E3_camera_sticker/shape_predictor_68_face_landmarks.dat
