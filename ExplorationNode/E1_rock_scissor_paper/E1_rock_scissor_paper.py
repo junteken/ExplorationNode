@@ -13,7 +13,6 @@ if tf.test.is_gpu_available(cuda_only=False, min_cuda_compute_capability=None):
 else:
     print('gpu is available??')
 
-os.environ['KMP_DUPLICATE_LIB_OK']= 'True' #OMP error solution for MacOS
 
 
 base_dir= os.getcwd()+'/rock_scissor_paper_data'

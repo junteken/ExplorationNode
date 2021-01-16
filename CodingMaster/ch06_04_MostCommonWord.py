@@ -2,6 +2,7 @@ import re
 import collections
 
 def solution(paragraph, banned):
+    paragraph = paragraph.replace(',','')
     paragraph = paragraph.replace('.','')
 
     paragraph = paragraph.lower()
