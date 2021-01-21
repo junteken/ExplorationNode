@@ -4,3 +4,11 @@ environment.yml
 .idea
 ExplorationNode/E1_rock_scissor_paper/rock_scissor_paper_data
 ExplorationNode/E3_camera_sticker/shape_predictor_68_face_landmarks.dat
+*.h5
+ExplorationNode/E4_Imdb/mecab-ko-dic-2.1.1-20180720
+ExplorationNode/E4_Imdb/mecab-0.996-ko-0.9.2
+ExplorationNode/E4_Imdb/ko
+*.bin
+ExplorationNode/E4_Imdb/ratings_test.txt
+ExplorationNode/E4_Imdb/ratings_train.txt
+ExplorationNode/E4_Imdb/word2vec.txt
