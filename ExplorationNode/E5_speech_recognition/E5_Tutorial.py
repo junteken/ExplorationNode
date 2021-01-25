@@ -4,6 +4,12 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from tensorflow.keras import layers
+import librosa
+
+def wav2spec(wav, fft_size=258): # spectrogram shape을 맞추기위해서 size 변형
+    D = np.abs(librosa.stft(wav, n_fft=fft_size))
+    return D
+print("✅")
 
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True' #OMP error solution for MacOS
@@ -106,6 +112,34 @@ def draw_graph():
     plt.title('Training and Validation Loss')
     plt.show()
 
+def train_1Dconv_n_show(model, checkpoint_dir, train_dataset, train_wav, test_dataset, test_wav):
+    optimizer=tf.keras.optimizers.Adam(1e-4)
+    model.compile(loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
+                      optimizer=optimizer,
+                      metrics=['accuracy'])
+
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_dir,
+                                                     save_weights_only=True,
+                                                     monitor='val_loss',
+                                                     mode='auto',
+                                                     save_best_only=True,
+                                                     verbose=1)
+
+    history_wav = model.fit(train_dataset, epochs=max_epochs,
+                                steps_per_epoch=len(train_wav) // batch_size,
+                                validation_data=test_dataset,
+                                validation_steps=len(test_wav) // batch_size,
+                                callbacks=[cp_callback]
+                                )
+
+    draw_graph(history_wav)
+
+    model.load_weights(checkpoint_dir)
+    results = model.evaluate(test_dataset)
+
+    return results
+
+
 data_path = os.getcwd()+'/data/speech_wav_8000.npz'
 speech_data = np.load(data_path)
 
@@ -178,38 +212,15 @@ print("✅")
 
 
 model_wav = Conv1D_model()
+# model_wav = residual_model()
 
-optimizer=tf.keras.optimizers.Adam(1e-4)
-model_wav.compile(loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
-                  optimizer=optimizer,
-                  metrics=['accuracy'])
-
-cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_dir,
-                                                 save_weights_only=True,
-                                                 monitor='val_loss',
-                                                 mode='auto',
-                                                 save_best_only=True,
-                                                 verbose=1)
-
-history_wav = model_wav.fit(train_dataset, epochs=max_epochs,
-                            steps_per_epoch=len(train_wav) // batch_size,
-                            validation_data=test_dataset,
-                            validation_steps=len(test_wav) // batch_size,
-                            callbacks=[cp_callback]
-                            )
-
-draw_graph(history_wav)
-
-model_wav.load_weights(checkpoint_dir)
-results = model_wav.evaluate(test_dataset)
+results = train_1Dconv_n_show(model_wav, checkpoint_dir, train_dataset, train_wav, test_dataset, test_wav)
 # loss
 print("loss value: {:.3f}".format(results[0]))
 # accuracy
 print("accuracy value: {:.4f}%".format(results[1]*100))
-
 inv_label_value = {v: k for k, v in label_value.items()}
 batch_index = np.random.choice(len(test_wav), size=1, replace=False)
-
 batch_xs = test_wav[batch_index]
 batch_ys = test_label[batch_index]
 y_pred_ = model_wav(batch_xs, training=False)
@@ -222,25 +233,24 @@ else:
     print("y_pred: " + str(inv_label_value[np.argmax(y_pred_)]) + '(Incorrect!)')
 print("✅")
 
-model_wav = residual_model()
+#
+# optimizer=tf.keras.optimizers.Adam(1e-4)
+# model_wav.compile(loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
+#                   optimizer=optimizer,
+#                   metrics=['accuracy'])
+#
+# cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_dir,
+#                                                  save_weights_only=True,
+#                                                  monitor='val_loss',
+#                                                  mode='auto',
+#                                                  save_best_only=True,
+#                                                  verbose=1)
+#
+# history_wav = model_wav.fit(train_dataset, epochs=max_epochs,
+#                             steps_per_epoch=len(train_wav) // batch_size,
+#                             validation_data=test_dataset,
+#                             validation_steps=len(test_wav) // batch_size,
+#                             callbacks=[cp_callback]
+#                             )
 
-optimizer=tf.keras.optimizers.Adam(1e-4)
-model_wav.compile(loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
-                  optimizer=optimizer,
-                  metrics=['accuracy'])
-
-cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_dir,
-                                                 save_weights_only=True,
-                                                 monitor='val_loss',
-                                                 mode='auto',
-                                                 save_best_only=True,
-                                                 verbose=1)
-
-history_wav = model_wav.fit(train_dataset, epochs=max_epochs,
-                            steps_per_epoch=len(train_wav) // batch_size,
-                            validation_data=test_dataset,
-                            validation_steps=len(test_wav) // batch_size,
-                            callbacks=[cp_callback]
-                            )
-
-draw_graph(history_wav)
+draw_graph(results)
