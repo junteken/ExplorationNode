@@ -9,10 +9,13 @@ import librosa
 def wav2spec(wav, fft_size=258): # spectrogram shape을 맞추기위해서 size 변형
     D = np.abs(librosa.stft(wav, n_fft=fft_size))
     return D
-print("✅")
-
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True' #OMP error solution for MacOS
+
+
+def one_hot_label(wav, label):
+    label = tf.one_hot(label, depth=12)
+    return wav, label
 
 def residual_model():
     input_tensor = layers.Input(shape=(sr, 1))
@@ -88,7 +91,7 @@ def Conv1D_model():
 
     return model_wav
 
-def draw_graph():
+def draw_graph(history_wav):
 
     acc = history_wav.history['accuracy']
     val_acc = history_wav.history['val_accuracy']
@@ -189,14 +192,11 @@ max_epochs = 10
 # the save point
 checkpoint_dir = os.getcwd()+'/models/wav'
 
+
 # tf.data.Dataset.from_tensor_slices 함수에 return 받길 원하는 데이터를 튜플 (data, label)
 # 형태로 넣어서 사용할 수 있습니다.
 # map 함수는 dataset이 데이터를 불러올때마다 동작시킬 데이터 전처리 함수를 매핑해 주는 역할을 합니다. 첫번째 map 함수는 from_tensor_slice 에 입력한 튜플 형태로 데이터를 받으며 return 값으로 어떤 데이터를 반환할지 결정합니다.
 # map 함수는 중첩해서 사용이 가능합니다.
-def one_hot_label(wav, label):
-    label = tf.one_hot(label, depth=12)
-    return wav, label
-
 # for train
 train_dataset = tf.data.Dataset.from_tensor_slices((train_wav, train_label))
 train_dataset = train_dataset.map(one_hot_label)
