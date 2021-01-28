@@ -14,3 +14,6 @@ ExplorationNode/E4_Imdb/ratings_train.txt
 ExplorationNode/E4_Imdb/word2vec.txt
 ExplorationNode/E5_speech_recognition/data/speech_wav_8000.npz
 ExplorationNode/E5_speech_recognition/models
+ExplorationNode/E7_FaceNet/images
+ExplorationNode/E7_FaceNet/korean
+
