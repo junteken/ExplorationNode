@@ -145,3 +145,4 @@ def generate_text(model, tokenizer, init_sentence="<start>", max_len=20):
         generated += tokenizer.index_word[word_index] + " "
 
     return generated   # 이것이 최종적으로 모델이 생성한 자연어 문장입니다.
+1()
