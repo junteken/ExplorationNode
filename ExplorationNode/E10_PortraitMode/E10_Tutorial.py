@@ -122,3 +122,41 @@ plt.imshow(img_mask, cmap=plt.cm.binary_r)
 ax.set_title('DeepLab Model Mask')
 
 plt.show()
+
+# bitwise_not 함수를 이용하면 이미지가 반전됩니다.
+# 배경은 255 사람은 0이 되겠죠?
+# 반전된 세그멘테이션 결과를 이용해서 이미지와 bitwise_and
+# 연산을 수행하면 배경만 있는 영상을 얻을 수 있습니다.
+# https://stackoverflow.com/questions/32774956/explain-arguments-meaning-in-res-cv2-bitwise-andimg-img-mask-mask
+img_mask_color = cv2.cvtColor(img_mask_up, cv2.COLOR_GRAY2BGR)
+img_bg_mask = cv2.bitwise_not(img_mask_color)
+img_bg = cv2.bitwise_and(img_orig, img_bg_mask)
+plt.imshow(img_bg)
+plt.show()
+
+img_bg_blur = cv2.blur(img_bg, (13,13))
+plt.imshow(cv2.cvtColor(img_bg_blur, cv2.COLOR_BGR2RGB))
+plt.show()
+
+# 배경 영상과 사람 영상을 합치기
+img_concat = np.where(img_mask_color==255, img_orig, img_bg_blur)
+plt.imshow(cv2.cvtColor(img_concat, cv2.COLOR_BGR2RGB))
+plt.show()
+
+# 여러분의 셀카를 이용해서 오늘 배운 내용을 수행해 봅시다.
+# 아래와 같은 이미지를 얻어야 합니다.
+# 최소 3장 이상의 인물모드 사진을 만들어 봅시다.
+# 인물이 주인공이 아닌, 귀여운 고양이에 대한 아웃포커싱 사진도 만들어 볼 수 있을 것입니다.
+# 시맨틱 세그멘테이션 스텝에서 힌트를 찾아봅시다.
+# 배경을 blur하는 인물모드 사진이 아니라 배경사진을 다른 이미지로 교체하는 크로마키 배경합성을 시도해 볼 수도 있을 것입니다.
+# 여러분만의 환상적인 사진을 만들어 보면 어떨까요?
+
+# 아래 사진에도 문제점이 몇가지 있었습니다.
+# 예를 들어 뒤에 걸린 옷이 인물 영역에 포함되어 blur되지지 않고 나온다던가 하는 경우입니다.
+# ㅠㅠ 그 외 다른 문제들이 눈에 띄시나요?
+# 아래 사진에는 이상한 점이 최소 2개 이상 더 있습니다.
+# 어떤 문제가 있는지 찾아서 아래 사진처럼 표시해 봅시다.
+#
+# 추가로 여러분이 만들어 낸 인물 모드 사진 중 하나에서도 이상한 위치를 찾아 아래 사진처럼 표시해 봅시다.
+# 표시한 이미지들을 jupyter notebook에 포함하여 제출해 주세요.
+#
