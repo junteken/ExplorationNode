@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 import os
 from konlpy.tag import Mecab
 
-os.environ['KMP_DUPLICATE_LIB_OK']= 'True' #OMP error solution for MacOS
+os.environ['KMP_DUPLICA' \
+           'TE_LIB_OK']= 'True' #OMP error solution for MacOS
 tokenizer = Mecab()
 stopwords = ['의','가','이','은','들','는','좀','잘','걍','과','도','를','으로','자','에','와','한','하다']
 vocab_size = 10000
@@ -132,7 +133,8 @@ def load_data(train_data, test_data, num_words=vocab_size):
 # 단, 모든 문장은 <BOS>로 시작하는 것으로 합니다.
 def get_encoded_sentence(sentence, word_to_index):
     # return [word_to_index['<BOS>']]+[word_to_index[word] if word in word_to_index else word_to_index['<UNK>'] for word in sentence.split()]
-    return [word_to_index['<BOS>']]+[word_to_index[word] if word in word_to_index else word_to_index['<UNK>'] for word in tokenizer.nouns(sentence)]
+    return [word_to_index['<BOS>']]+[word_to_index[word] if word in word_to_index else word_to_index['<UNK>']
+                                     for word in tokenizer.nouns(sentence)]
 
 
 # 여러 개의 문장 리스트를 한꺼번에 단어 인덱스 리스트 벡터로 encode해 주는 함수입니다.
@@ -148,7 +150,7 @@ def get_decoded_sentences(encoded_sentences, index_to_word):
     return [get_decoded_sentence(encoded_sentence, index_to_word) for encoded_sentence in encoded_sentences]
 
     X_train.append(enc)
-        Y_train.append(train_data['label'][idx])
+    <Y_train.append(train_data['label'][idx])
 
     reviews = test_data['document']
     X_test=[]
